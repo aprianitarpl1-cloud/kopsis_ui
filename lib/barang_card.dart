@@ -20,7 +20,7 @@ class BarangCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: sorot ? Colors.green[100] : null,
+      color: const Color.fromARGB(255, 168, 222, 178),
       margin: const EdgeInsets.all(8),
       child: ListTile(
         leading: const Icon(Icons.inventory_2),

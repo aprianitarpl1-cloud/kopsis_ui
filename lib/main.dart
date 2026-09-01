@@ -5,112 +5,163 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const KoperasiPage(),
-    );
-  }
-}
-
-class KoperasiPage extends StatelessWidget {
-  const KoperasiPage({super.key});
-
-  // Data barang koperasi
-  final List<Map<String, dynamic>> daftarBarang = const [
+  static const List<Map<String, dynamic>> daftarBarang = [
     {
       'nama': 'Buku Tulis',
       'anggota': 3000,
       'umum': 3500,
-      'stok': 0,
+      'stok': 40,
+      'kategori': 'Alat Tulis',
     },
     {
       'nama': 'Pulpen',
       'anggota': 2500,
       'umum': 3000,
       'stok': 25,
+      'kategori': 'Alat Tulis',
     },
     {
       'nama': 'Roti',
       'anggota': 5000,
       'umum': 5500,
       'stok': 15,
+      'kategori': 'Makanan',
     },
     {
       'nama': 'Pensil',
       'anggota': 2000,
       'umum': 2500,
       'stok': 30,
+      'kategori': 'Alat Tulis',
     },
     {
       'nama': 'Penghapus',
       'anggota': 1500,
       'umum': 2000,
       'stok': 20,
+      'kategori': 'Alat Tulis',
     },
     {
-      'nama' : 'Penggaris',
-      'anggota' : 6000,
-      'umum' : 7000,
-      'stok' : 12,
+      'nama': 'Penggaris',
+      'anggota': 2500,
+      'umum': 3000,
+      'stok': 18,
+      'kategori': 'Alat Tulis',
     },
     {
-      'nama' : 'Spidol',  
-      'anggota' : 6000,
-      'umum' : 5000,
-      'stok' : 17,
+      'nama': 'Spidol',
+      'anggota': 4000,
+      'umum': 4500,
+      'stok': 12,
+      'kategori': 'Alat Tulis',
     },
     {
-      'nama' : 'Lem Kertas',
-      'anggota' : 4000,
-      'umum' : 4500,
-      'stok' : 10,
+      'nama': 'Buku Gambar',
+      'anggota': 5000,
+      'umum': 6000,
+      'stok': 0,
+      'kategori': 'Alat Tulis',
     },
     {
-      'nama' : 'Biskuit',
-      'anggota' : 5500,
-      'umum' : 6000,
-      'stok' : 17,
+      'nama': 'Lem Kertas',
+      'anggota': 3500,
+      'umum': 4000,
+      'stok': 14,
+      'kategori': 'Alat Tulis',
     },
     {
-      'nama' : 'Susu Kotak',
-      'anggota' : 4500, 
-      'umum' : 5000,
-      'stok' : 22,
+      'nama': 'Tempat Pensil',
+      'anggota': 10000,
+      'umum': 12000,
+      'stok': 10,
+      'kategori': 'Aksesoris',
     },
   ];
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late TextEditingController _controller;
+  String kataCari = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Koperasi Sekolah'),
-      ),
+    // Hanya menampilkan barang yang stoknya lebih dari 0
+    final barangTersedia = MyApp.daftarBarang
+        .where((barang) => barang['stok'] > 0)
+        .toList();
 
-      body: Builder(
-        builder: (context) {
-          final barangTersedia = daftarBarang
-                .where((barang) => barang['stok'] > 0)
-                .toList();
-          return ListView.builder(
-            itemCount: barangTersedia.length,
-            itemBuilder: (context, index) {
-                final barang = barangTersedia[index];
+    // Menyaring barang berdasarkan kata yang diketik
+    final hasilCari = barangTersedia
+        .where(
+          (barang) => barang['nama']
+              .toLowerCase()
+              .contains(kataCari),
+        )
+        .toList();
 
-          return BarangCard(
-            nama: barang['nama'],
-            hargaAnggota: barang['anggota'],
-            stok: barang['stok'],
-            kategori: 'Alat Tulis',
-            sorot: true,
-          );
-        },
-          );
-        },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Koperasi Sekolah'),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  hintText: 'Cari barang...',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (nilai) {
+                  setState(() {
+                    kataCari = nilai.toLowerCase().trim();
+                  });
+                },
+              ),
+            ),
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: hasilCari.length,
+                itemBuilder: (context, index) {
+                  final barang = hasilCari[index];
+
+                  return BarangCard(
+                    nama: barang['nama'],
+                    hargaAnggota: barang['anggota'],
+                    stok: barang['stok'],
+                    kategori: barang['kategori'],
+
+                    // Barang dengan stok sedikit akan disorot
+                    sorot: barang['stok'] <= 15,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
