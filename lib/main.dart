@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> {
         .where((barang) => barang['stok'] > 0)
         .toList();
 
-    // Menyaring barang berdasarkan kata yang diketik
+    // Menyaring barang berdasarkan pencarian
     final hasilCari = barangTersedia
         .where(
           (barang) => barang['nama']
@@ -142,20 +142,49 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
 
+            // Menampilkan lebar layar
+            Text(
+              'Lebar layar: ${MediaQuery.of(context).size.width.toStringAsFixed(0)} px',
+            ),
+
+            const SizedBox(height: 10),
+
             Expanded(
-              child: ListView.builder(
-                itemCount: hasilCari.length,
-                itemBuilder: (context, index) {
-                  final barang = hasilCari[index];
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  int kolom;
 
-                  return BarangCard(
-                    nama: barang['nama'],
-                    hargaAnggota: barang['anggota'],
-                    stok: barang['stok'],
-                    kategori: barang['kategori'],
+                  if (constraints.maxWidth < 600) {
+                    kolom = 1;
+                  } else if (constraints.maxWidth < 900) {
+                    kolom = 2;
+                  } else {
+                    kolom = 3;
+                  }
 
-                    // Barang dengan stok sedikit akan disorot
-                    sorot: barang['stok'] <= 15,
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: hasilCari.length,
+                    gridDelegate:
+                        SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: kolom,
+                      childAspectRatio: 3,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemBuilder: (context, index) {
+                      final barang = hasilCari[index];
+
+                      return BarangCard(
+                        nama: barang['nama'],
+                        hargaAnggota: barang['anggota'],
+                        stok: barang['stok'],
+                        kategori: barang['kategori'],
+
+                        // Barang dengan stok sedikit akan disorot
+                        sorot: barang['stok'] <= 15,
+                      );
+                    },
                   );
                 },
               ),
