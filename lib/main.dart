@@ -10,7 +10,7 @@ class MyApp extends StatefulWidget {
 
   static const List<Map<String, dynamic>> daftarBarang = [
     {
-      'nama': 'Buku Tulis',
+      'nama': 'Buku Tulis Bergaris 58 Lembar Sampul Tebal',
       'anggota': 3000,
       'umum': 3500,
       'stok': 40,
@@ -103,12 +103,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Hanya menampilkan barang yang stoknya lebih dari 0
     final barangTersedia = MyApp.daftarBarang
         .where((barang) => barang['stok'] > 0)
         .toList();
 
-    // Menyaring barang berdasarkan pencarian
     final hasilCari = barangTersedia
         .where(
           (barang) => barang['nama']
@@ -142,7 +140,6 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
 
-            // Menampilkan lebar layar
             Text(
               'Lebar layar: ${MediaQuery.of(context).size.width.toStringAsFixed(0)} px',
             ),
@@ -180,8 +177,6 @@ class _MyAppState extends State<MyApp> {
                         hargaAnggota: barang['anggota'],
                         stok: barang['stok'],
                         kategori: barang['kategori'],
-
-                        // Barang dengan stok sedikit akan disorot
                         sorot: barang['stok'] <= 15,
                       );
                     },
